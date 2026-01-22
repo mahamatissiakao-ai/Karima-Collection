@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+
+<div class="main-layout">
+    <div class="content-wrapper">
+        @Body
+    </div>
+
+    <footer class="footer text-center mt-5">
+        <p>© @DateTime.Now.Year Karima Collection. All rights reserved.</p>
+    </footer>
+</div>
+
+<style>
+    .main-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background: #fff;
+        color: #111;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .content-wrapper {
+        flex: 1;
+        padding: 0;
+        margin: 0;
+    }
+
+    footer {
+        background: #f8f8f8;
+        padding: 1rem 0;
+        font-size: 0.9rem;
+        color: #666;
+        border-top: 1px solid #eee;
+    }
+
+        footer p {
+            margin: 0;
+        }
+</style>
+
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

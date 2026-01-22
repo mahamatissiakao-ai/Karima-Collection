@@ -1,0 +1,265 @@
+﻿@page "/contact"
+@rendermode InteractiveServer
+@using KarimaCollection.Models
+@inject KarimaCollection.Data.AppDbContext Db
+@inject KarimaCollection.Services.EmailService EmailService
+
+
+
+<head>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #f8f8f8, #fff);
+            margin: 0;
+            color: #222;
+        }
+
+        /* ===== Navbar ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 3rem;
+            background: white;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+            animation: fadeDown 0.8s ease-in-out;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+        }
+
+        .home-btn {
+            background: linear-gradient(135deg, #111, #bfa46f);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.4rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .home-btn:hover {
+                background: linear-gradient(135deg, #000, #d1b76c);
+                transform: scale(1.05);
+            }
+
+        /* ===== Contact Section ===== */
+        .contact-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .contact-card {
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+            .contact-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            }
+
+        .contact-section h2 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .contact-section p {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+            .contact-form input,
+            .contact-form textarea {
+                padding: 1rem;
+                border: 1px solid #ddd;
+                border-radius: 12px;
+                font-size: 1rem;
+                background: #fafafa;
+                transition: 0.3s;
+                font-family: 'Poppins', sans-serif;
+            }
+
+                .contact-form input:focus,
+                .contact-form textarea:focus {
+                    border-color: #bfa46f;
+                    outline: none;
+                    box-shadow: 0 0 8px rgba(191,164,111,0.3);
+                    background: #fff;
+                }
+
+            .contact-form textarea {
+                resize: none;
+                height: 120px;
+            }
+
+            .contact-form button {
+                background: linear-gradient(135deg, #111, #bfa46f);
+                color: white;
+                border: none;
+                padding: 0.9rem;
+                border-radius: 30px;
+                cursor: pointer;
+                transition: 0.3s ease;
+                font-size: 1rem;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+            }
+
+                .contact-form button:hover {
+                    background: linear-gradient(135deg, #000, #d1b76c);
+                    transform: scale(1.03);
+                }
+
+        .thank-you {
+            margin-top: 1.5rem;
+            color: #2ecc71;
+            font-weight: 600;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            font-size: 0.9rem;
+            color: #555;
+            background: #fafafa;
+            margin-top: 3rem;
+        }
+
+        /* ===== Animations ===== */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<!-- ===== Navbar ===== -->
+<nav class="navbar">
+    <div class="logo">
+        <img src="images/logo.jpeg" alt="Karima Collection Logo" />
+        <button class="home-btn" @onclick="GoHome">🏠 Home</button>
+    </div>
+</nav>
+
+
+<!-- ===== Contact Form Section ===== -->
+<section class="contact-section">
+    <div class="contact-card">
+        <h2>Contact Us</h2>
+        <p>We’d love to hear from you. Please fill out the form below and we’ll respond soon.</p>
+
+        <EditForm Model="@contactForm" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="contact-form">
+                <input type="text" @bind="contactForm.Name" placeholder="Full Name" required />
+                <input type="email" @bind="contactForm.Email" placeholder="Email Address" required />
+                <input type="tel" @bind="contactForm.Phone" placeholder="Phone Number (optional)" />
+                <textarea @bind="contactForm.Message" placeholder="Your Message..." required></textarea>
+
+                <button type="submit">Send Message</button>
+            </div>
+        </EditForm>
+
+        @if (isSubmitted)
+        {
+            <p class="thank-you">✅ Thank you for reaching out! We’ll respond shortly.</p>
+        }
+    </div>
+</section>
+
+@code {
+    [Inject] NavigationManager Navigation { get; set; } = default!;
+    private ContactFormModel contactForm = new();
+    private bool isSubmitted = false;
+
+    private async Task HandleSubmit()
+    {
+        // 1️⃣ Save to database
+        var message = new ContactMessage
+        {
+            Name = contactForm.Name,
+            Email = contactForm.Email,
+            Phone = contactForm.Phone,
+            Message = contactForm.Message,
+            SubmittedAt = DateTime.Now
+        };
+
+        Db.ContactMessages.Add(message);
+        await Db.SaveChangesAsync();
+
+        // 2️⃣ Send Email Notification
+        string subject = $"📩 New Message from {contactForm.Name}";
+        string body = $@"
+            <h3>New Contact Message</h3>
+            <p><strong>Name:</strong> {contactForm.Name}</p>
+            <p><strong>Email:</strong> {contactForm.Email}</p>
+            <p><strong>Phone:</strong> {contactForm.Phone}</p>
+            <p><strong>Message:</strong><br/>{contactForm.Message}</p>";
+
+        await EmailService.SendEmailAsync(subject, body);
+
+        // 3️⃣ Show thank-you message
+        isSubmitted = true;
+        contactForm = new ContactFormModel(); // reset form
+    }
+
+    private void GoHome() => Navigation.NavigateTo("/");
+
+    public class ContactFormModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
+}

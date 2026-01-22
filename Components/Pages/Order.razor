@@ -1,0 +1,112 @@
+﻿@page "/order"
+@using KarimaCollection.Models
+@inject KarimaCollection.Data.AppDbContext Db
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+
+<head>
+    <style>
+        .order-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            padding: 0.8rem;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+
+
+<h2 class="text-center mt-4">🛒 Checkout</h2>
+
+@if (product != null)
+{
+    <div class="card shadow-sm mt-3 mx-auto" style="max-width: 600px;">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@product.ImageUrl" class="img-fluid rounded-start" alt="@product.Name" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text text-muted">@product.Description</p>
+                    <p class="fw-bold">💰 @product.Price.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<h2 class="text-center mt-4">🛍️ Place Your Order</h2>
+
+<div class="order-container">
+    <EditForm Model="@order" OnValidSubmit="HandleOrder">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>Full Name</label>
+            <input class="form-control" @bind="order.CustomerName" required />
+        </div>
+
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" @bind="order.CustomerEmail" required />
+        </div>
+
+        <div class="form-group">
+            <label>Shipping Address</label>
+            <textarea class="form-control" @bind="order.ShippingAddress"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Total Amount (GHS)</label>
+            <input type="number" class="form-control" step="0.01" @bind="order.TotalAmount" required />
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100 mt-3">Submit Order</button>
+    </EditForm>
+
+    @if (isSubmitted)
+    {
+        <div class="alert alert-success mt-3">
+            ✅ Thank you <strong>@order.CustomerName</strong>!
+            Your order has been placed successfully.
+        </div>
+    }
+</div>
+
+@code {
+    private KarimaCollection.Models.Order order = new KarimaCollection.Models.Order();
+    private Product? product;
+    private bool isSubmitted = false;
+
+    private async Task HandleOrder()
+    {
+        Db.Orders.Add(order);
+        await Db.SaveChangesAsync();
+
+        isSubmitted = true;
+
+        // Optional: Reset form after submission
+    }
+}

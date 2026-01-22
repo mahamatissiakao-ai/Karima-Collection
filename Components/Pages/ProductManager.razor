@@ -1,0 +1,208 @@
+﻿@page "/productManager"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.Forms
+@rendermode InteractiveServer
+@inject KarimaCollection.Data.AppDbContext Db
+@inject NavigationManager Nav
+
+<div class="d-flex justify-content-between align-items-center mt-4 px-4">
+    <h2 class="text-center flex-grow-1">🛍️ Manage Products</h2>
+    <button class="btn btn-outline-dark home-btn" @onclick="GoHome">🏠 Home</button>
+</div>
+
+<div class="product-manager-container">
+    <EditForm Model="@newProduct" OnValidSubmit="AddProduct">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>Name</label>
+            <input class="form-control" @bind="newProduct.Name" required />
+        </div>
+
+        <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" @bind="newProduct.Description" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Price (GHS)</label>
+            <input type="number" class="form-control" @bind="newProduct.Price" step="0.01" required />
+        </div>
+
+        <!-- ⭐ NEW FILE UPLOAD INSTEAD OF IMAGE URL -->
+        <div class="form-group">
+            <label>Upload Product Image</label>
+            <InputFile OnChange="HandleImageUpload" accept="image/*" />
+        </div>
+
+        <div class="form-group">
+            <label>Category</label>
+            <select class="form-control" @bind="newProduct.CategoryId" required>
+                <option value="">-- Select Category --</option>
+                @foreach (var c in categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <button class="btn btn-dark w-100 mt-3">Add Product</button>
+    </EditForm>
+</div>
+
+<h3 class="mt-5 text-center">📦 Existing Products</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in products)
+        {
+            <tr>
+                <td>
+                    <img src="@p.ImageUrl" alt="@p.Name" width="60" height="60" class="rounded shadow-sm" />
+                </td>
+                <td>@p.Name</td>
+                <td>@p.Price</td>
+                <td>@p.Category?.Name</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteProduct(p.Id)">🗑 Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .product-manager-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    h2, h3 {
+        color: #111;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .btn-dark {
+        background: linear-gradient(135deg, #111, #bfa46f);
+        color: white;
+        border: none;
+        padding: 0.8rem;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .btn-dark:hover {
+            background: linear-gradient(135deg, #000, #d1b76c);
+        }
+
+    .btn-danger {
+        border-radius: 20px;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .home-btn {
+        border-radius: 30px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .home-btn:hover {
+            background: #111;
+            color: #fff;
+        }
+</style>
+
+@code {
+    private List<KarimaCollection.Models.Product> products = new();
+    private List<KarimaCollection.Models.Category> categories = new();
+    private KarimaCollection.Models.Product newProduct = new();
+
+    private IBrowserFile? uploadedImage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = Db.Products.Include(p => p.Category).ToList();
+        categories = Db.Categories.ToList();
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        uploadedImage = e.File;
+
+        // Limit 5MB
+        if (uploadedImage.Size > 5_000_000)
+        {
+            Console.WriteLine("Image is too large!");
+            uploadedImage = null;
+        }
+    }
+
+    private async Task AddProduct()
+    {
+        if (newProduct.CategoryId == 0)
+            return;
+
+        // Save uploaded image
+        if (uploadedImage != null)
+        {
+            var folderPath = Path.Combine("wwwroot", "uploads", "products");
+
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var fileName = $"{Guid.NewGuid()}_{uploadedImage.Name}";
+            var filePath = Path.Combine(folderPath, fileName);
+
+            await using var stream = uploadedImage.OpenReadStream(5_000_000);
+            await using var fileStream = File.Create(filePath);
+
+            await stream.CopyToAsync(fileStream);
+
+            newProduct.ImageUrl = $"/uploads/products/{fileName}";
+        }
+
+        Db.Products.Add(newProduct);
+        await Db.SaveChangesAsync();
+
+        newProduct = new();
+        uploadedImage = null;
+
+        products = Db.Products.Include(p => p.Category).ToList();
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        var product = await Db.Products.FindAsync(id);
+        if (product != null)
+        {
+            Db.Products.Remove(product);
+            await Db.SaveChangesAsync();
+            products = Db.Products.Include(p => p.Category).ToList();
+        }
+    }
+
+    private void GoHome()
+    {
+        Nav.NavigateTo("/");
+    }
+}
+ 

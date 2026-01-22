@@ -1,0 +1,52 @@
+﻿@page "/products"
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content text-center">
+        <h1>Karima Collection</h1>
+        <p>Elegance in Every Stitch</p>
+        <a class="btn-shop" href="#featured">Shop Now</a>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section id="featured" class="featured-section">
+    <h2 class="section-title">Featured Products</h2>
+    <div class="product-grid">
+        @foreach (var product in products)
+        {
+            <div class="product-card">
+                <img src="@product.ImageUrl" alt="@product.Name" />
+                <h3>@product.Name</h3>
+                <p>@product.Price</p>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="about-section" id="about">
+    <h2>About Karima Collection</h2>
+    <p>
+        Karima Collection celebrates timeless elegance and modern fashion.
+        Each piece is crafted with care, blending simplicity and sophistication
+        for confident women everywhere.
+    </p>
+</section>
+
+@code {
+    private List<Product> products = new()
+    {
+        new() { Name = "Classic Linen Dress", Price = "$120", ImageUrl = "images/product1.jpg" },
+        new() { Name = "Silk Blouse", Price = "$85", ImageUrl = "images/product2.jpg" },
+        new() { Name = "Tailored Blazer", Price = "$150", ImageUrl = "images/product3.jpg" },
+        new() { Name = "Evening Gown", Price = "$250", ImageUrl = "images/product4.jpg" },
+    };
+
+    public class Product
+    {
+        public string Name { get; set; } = "";
+        public string Price { get; set; } = "";
+        public string ImageUrl { get; set; } = "";
+    }
+}
