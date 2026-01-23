@@ -4,11 +4,11 @@ WORKDIR /app
 
 # Copy csproj and restore
 COPY *.sln .
-COPY Karima-Collection/*.csproj ./Karima-Collection/
+COPY KarimaCollection/*.csproj ./KarimaCollection/
 RUN dotnet restore
 
 # Copy everything else and publish
-COPY Karima-Collection/. ./Karima-Collection/
+COPY KarimaCollection/. ./KarimaCollection/
 WORKDIR /app/Karima=Collection
 RUN dotnet publish -c Release -o /app/publish
 
@@ -16,4 +16,4 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "Karima-Collection.dll"]
+ENTRYPOINT ["dotnet", "KarimaCollection.dll"]
