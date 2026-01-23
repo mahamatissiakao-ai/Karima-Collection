@@ -2,11 +2,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-COPY KarimaCollection/KarimaCollection.csproj KarimaCollection/
-RUN dotnet restore KarimaCollection/KarimaCollection.csproj
+COPY Karima_Collection/Karima_Collection.csproj Karim_aCollection/
+RUN dotnet restore Karima_Collection/Karima_Collection.csproj
 
 COPY . .
-WORKDIR /src/KarimaCollection
+WORKDIR /src/Karima_Collection
 RUN dotnet publish -c Release -o /app/publish
 
 # ---------- RUNTIME STAGE ----------
