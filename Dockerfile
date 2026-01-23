@@ -9,7 +9,7 @@ RUN dotnet restore
 
 # Copy everything else and publish
 COPY KarimaCollection/. ./KarimaCollection/
-WORKDIR /app/Karima=Collection
+WORKDIR /app/KarimaCollection
 RUN dotnet publish -c Release -o /app/publish
 
 # Build runtime image
