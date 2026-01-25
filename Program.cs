@@ -20,9 +20,11 @@ builder.Services.AddScoped<AdminAuthService>();
 // Add services
 builder.Services.AddRazorPages();
 
-// Register database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+
 
 
 // Add services to the container.
