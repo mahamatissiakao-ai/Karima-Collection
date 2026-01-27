@@ -211,14 +211,14 @@
                 <img src="@item.ImageUrl" alt="@item.Name" />
                 <div class="cart-details">
                     <h4>@item.Name</h4>
-                    <p>@item.Price.ToString("C") × @item.Quantity</p>
+                    <p>₦@item.Price.ToString("N2") × @item.Quantity</p>
                 </div>
                 <button class="remove-btn" @onclick="() => RemoveItem(item.ProductId)">Remove</button>
             </div>
         }
 
         <div class="cart-total">
-            <p>Total: @CartService.GetTotal().ToString("C")</p>
+            <p>Total: ₦@CartService.GetTotal().ToString("N2")</p>
             <NavLink class="checkout-btn" href="/order">Proceed to Checkout</NavLink>
         </div>
     }

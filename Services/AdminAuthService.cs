@@ -32,5 +32,25 @@ namespace KarimaCollection.Services
 
             return VerifyPassword(password, admin.PasswordHash);
         }
+
+
+        public async Task ResetAdminAsync(
+    string oldUsername,
+    string newUsername,
+    string newPassword)
+        {
+            var admin = await _db.Admins
+                .FirstOrDefaultAsync(a => a.Username == oldUsername);
+
+            if (admin == null)
+                throw new Exception("Admin not found");
+
+            admin.Username = newUsername;
+            admin.PasswordHash = HashPassword(newPassword);
+
+            await _db.SaveChangesAsync();
+
+        }
+
     }
 }

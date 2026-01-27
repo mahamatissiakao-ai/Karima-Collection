@@ -30,7 +30,7 @@
             <tr>
                 <th>Customer</th>
                 <th>Email</th>
-                <th>Amount (GHS)</th>
+                <th>Amount (NYN)</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -40,7 +40,7 @@
                 <tr>
                     <td>@o.CustomerName</td>
                     <td>@o.CustomerEmail</td>
-                    <td>@o.TotalAmount.ToString("C")</td>
+                    <td>@o.TotalAmount.ToString("N2")</td>
                     <td>@o.OrderDate.ToShortDateString()</td>
                 </tr>
             }

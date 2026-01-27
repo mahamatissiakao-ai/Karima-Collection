@@ -2,7 +2,9 @@
 using KarimaCollection.Data;
 using KarimaCollection.Models;
 using KarimaCollection.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,7 @@ var app = builder.Build();
 
 
 
+
 // Seed database
 using (var scope = app.Services.CreateScope())
 {
@@ -58,6 +61,9 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+
+
 
 
 app.Run();
